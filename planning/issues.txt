@@ -1,0 +1,34 @@
+BAD CODE PROBLEMS:
+==================
+- can walk through walls at borders
+  - sprites/slime.py:37-57
+
+- shitty going into rooms
+  - sprites/slime.py:43,56
+  - ui/overworld_ui.py:80-90
+
+- hats
+  - $$$$$
+
+- Room vs RoomDS
+  - ui/map_ui.py:19
+  - terrain/__init__.py:9
+
+- We never use the Tile class: do we need to?
+  - terrain/__init__.py:4
+
+- entities crossing borders sometimes invisible
+  - can be seen sometimes with the Lightning Elementals
+  - solution is probably to pour all entities into a global set which is drawn last
+  - terrain/__init__.py:47
+
+- "impassible" needs more precision
+  - for instance, the walls in the house
+  - terrain/rooms.py:15
+  - sprites/slime.py:37-57
+
+- entities probably shouldn't be acting on a per-reblit schedule
+  - terrain/__init__.py:48
+
+- room loading should be threaded
+  - ui/overworld_ui.py:24

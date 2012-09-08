@@ -1,0 +1,75 @@
+- dungeons
+  - puzzles
+  - combat
+  - random
+    - preconstructed rooms, strategically placed to create dungeon
+    - random puzzles are hard
+    - eg: have 10 puzzles, use 4
+
+- overworld
+  - finite
+  - random
+  - mini-dungeons, on the overworld?
+    - less puzzle based
+  - random inconspicuous bomb-walls/burn-bush
+  - upgrade pond
+  - different areas
+    - town
+    - grasslands
+    - forest
+    - ocean?
+    - desert
+    - etc
+
+- items
+  - have upgrades
+  - diablo-style adjectives, modifiers on the items
+    - puzzles are all doable with the item, but the stats are different
+    - encourages different play styles between worlds
+  - spells might be rolled into this, but i don't know that i like spells being obtained from dungeons
+
+- enemy combatants
+  - some of them should be way easier to take down with multiple people
+    - i don't think any simple enemies should be impossible to take down solo
+  - focus on complex strategies, like removing armor or whatever, more than just "shoot at weak spot" (for bosses esp.)
+
+- death/respawning
+  - health is just HPs like standard.
+  - 0 hps means you are dead: your corpse sits there on the ground and you watch a grayed-out screen
+  - if you...
+    - hit the respawn button...
+      - in a dungeon you are transported to the entrance
+        - combat rooms shut all exits, ensuring people cannot reenter the room until the battle is over. puzzles can be rejoined.
+      - on the overworld you are transported to the last town you visited
+    - wait on this screen you may be rezzed by another player's ability.
+      - a cleric skill would bring you back for a high MP price
+      - a necromancer skill would bring you back as a zombie, with different stats etc
+      - at some point a timer would just respawn you and your corpse would disappear
+
+- world events
+  - flooding the world
+  - reseting dungeons?
+
+- multiplayer
+  - minecraft-ish in style:
+    - server is up, anyone can join and make progress in the overworld solo
+    - dungeons require x people to complete, specified at the start of the dungeon
+      - dungeon is either locked until x people are present or is just suggested
+    - rewards are all the same item, different enchantments
+      - one per player
+    - Handling completed dungeons:
+      1: dungeon is reset on completion
+        - everyone present gets an end-of-dungeon reward and is ejected to the overworld
+        - dungeon immediately resets state
+        - veterans may replay the dungeon but will not receive further rewards
+        - new players may replay and reap the rewards
+      2: dungeon is able to be reset manually
+        - similar conditions to above
+      3: first come, first serve
+        - dungeon will be a hollow husk of its former glory
+        - new players may scavenge for the item of the dungeon
+        - end-of-dungeon reward for new players is questionable
+          - don't want to just give it away
+          - boss may respawn?
+        - possible all rooms reset but the keyed doors remain open
+          - this makes the run much easier but not trivial: enemies and many puzzles are still mandatory
