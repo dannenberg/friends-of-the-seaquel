@@ -89,8 +89,8 @@ class OverworldUI(ui.UI):
                 self.slime.pos = self.room_data.player_toR
                 self.load_rooms_around(self.room_data.room_toR)
 
-            newx = int(self.slime.x // (Room.TPS * 50))
-            newy = int(self.slime.y // (Room.TPS * 50))
+            newx = int(self.slime.centerx // (Room.TPS * 50))
+            newy = int(self.slime.centery // (Room.TPS * 50))
             if not (0 <= newx < self.room_data.w and
                     0 <= newy < self.room_data.h):
                 x, y = self.room_data.pos  # keep the current room's position
