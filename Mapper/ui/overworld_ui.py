@@ -2,6 +2,7 @@ import pygame
 
 import ui
 from ui.map_ui import MapUI
+from ui.panels import UsersInfoPanel
 from terrain import Room
 from terrain.rooms import *
 from sprites.slime import SlimeAI
@@ -18,6 +19,7 @@ class OverworldUI(ui.UI):
 
         self.terrain = []
         self.load_rooms_around((25, 25))
+        self.ui = []
 
         self.redraw()
 
@@ -61,10 +63,18 @@ class OverworldUI(ui.UI):
         center = self.slime.centerx - 300, self.slime.centery - 225
         for t in self.terrain:
             t.reblit(surf, time_passed, center, self.room_data.pos)
+        for u in self.ui:
+            u.reblit(surf)
 
     def handle_key(self, event):
         if event.key == pygame.K_m:
             self.main.ui_push(MapUI)
+        if event.key == pygame.K_TAB:
+            self.ui.append(UsersInfoPanel())
+
+    def handle_key_up(self, event):
+        if event.key == pygame.K_TAB:
+            self.ui = []  # TODO: NO NO NO NO NO
 
     def update(self):
         xoff, yoff = 0, 0
