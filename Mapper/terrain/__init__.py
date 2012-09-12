@@ -26,6 +26,9 @@ class Room(object):
     w = property(lambda self: self.roomds.w)
     h = property(lambda self: self.roomds.h)
 
+    def __contains__(self, (x, y)):
+        return (0 <= x - self.x < self.w) and (0 <= y - self.y < self.h)
+
     @staticmethod
     def resize(x):
         return 50 * x

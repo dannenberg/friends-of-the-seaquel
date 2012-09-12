@@ -143,7 +143,7 @@ class MapDS:
                                for y in xrange(SCREEN_SLOTS[1])]  # 2d list maps coordinates to room_objects
         self.all_paths = set()
 
-        self.expand_room()
+#        self.expand_room()
 
     def get_at(self, (x, y)):
         return self.room_map[y][x]

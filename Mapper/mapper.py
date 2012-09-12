@@ -2,6 +2,7 @@ import pygame
 
 from ui.map_ui import MapUI, MapDS
 from ui.overworld_ui import OverworldUI
+from networking import Client
 
 
 class Main:
@@ -19,11 +20,13 @@ class Main:
         self.keys = set()
 
         self.map = MapDS()
+        self.map.expand_room()
         self.screen = pygame.display.set_mode(self.size)
         self.screen.fill((0xFF, ) * 3)
         self.last = None
 
         self.clicked = 0
+        self.client = Client(self)
         self.ui = OverworldUI(self, None)
 
     def ui_push(self, cls):

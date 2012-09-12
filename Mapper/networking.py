@@ -5,6 +5,8 @@ from Queue import Queue
 
 import sys, traceback
 
+from ui.map_ui import MapDS
+
 RS = chr(30)
 
 HOST = socket.gethostname()
@@ -56,6 +58,11 @@ class Server(threading.Thread):
         self.slots = [UserSlot() for _ in xrange(MAX_PLAYERS)]
         self.input_handlers = {"MSG": self.cmd_msg}
 
+        print "Generating map...",
+        self.map = MapDS()
+        self.map.expand_room()
+        print " done."
+
     def cmd_restart(self):
         self.broadcast("RESTART")
 
@@ -89,6 +96,9 @@ class Server(threading.Thread):
 
     def handle_input(self, slot, message):
         msg = message.split(" ")
+        if msg[0] not in self.input_handlers:
+            print "Unknown or malformed command:", msg[0]
+            return
         self.input_handlers[msg[0]](slot, msg)
 
     def cmd_msg(self, slot, argv):
@@ -156,7 +166,6 @@ class Client(threading.Thread):
                     break
                 else:
                     self.recv_buf += message
-                    print message
             if not self.done:
                 term, _, self.recv_buf = self.recv_buf.partition(RS) 
                 self.process_received(term)
