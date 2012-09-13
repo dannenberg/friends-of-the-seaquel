@@ -7,7 +7,7 @@ import sys, traceback
 
 from ui.map_ui import MapDS
 from terrain.rooms import Ocean
-from sprites.slime import SlimeAI
+from ui.overworld_ui import OverworldUI
 
 RS = chr(30)
 US = chr(31)
@@ -23,8 +23,9 @@ class UserSlot(object):
     OPEN = object()  # uses less memory than an integer, actually.
     PLAYER = object()
 
-    def __init__(self, *args):
+    def __init__(self, mapp):
         self.set_open()
+        self.map = mapp
 
     def parse_buffer(self):
         toR = []
@@ -42,7 +43,8 @@ class UserSlot(object):
         assert((not safe_mode) or self.is_open())
         self.conn = connection
         self._status = UserSlot.PLAYER
-        self.dude = SlimeAI((50, 50))
+        self.overworld = OverworldUI(self, None)
+        self.overworld.load_rooms_around((25, 25))
 
     def is_open(self):
         return self._status == UserSlot.OPEN
@@ -59,26 +61,28 @@ class Server(threading.Thread):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(ADDR)
         self.done = False
-        self.slots = [UserSlot() for _ in xrange(MAX_PLAYERS)]
-        self.input_handlers = {"MSG": self.cmd_msg,
-                               "MOVE": self.cmd_move}
 
         print "Generating map...",
         self.map = MapDS()
         self.map.expand_room()
         print " done."
 
+        self.slots = [UserSlot(self.map) for _ in xrange(MAX_PLAYERS)]
+        self.input_handlers = {"MSG": self.cmd_msg,
+                               "MOVE": self.cmd_move}
+
         self.terrain = []  # TODO: BAD BAD BAD
 
     def cmd_restart(self):
         self.broadcast("RESTART")
 
-    def offer_room(self, whom, loc):
+    def offer_room(self, whom, loc, dude_here):
+        print "offering room at", loc
         room = Ocean(self.map.get_at(loc))
         self.terrain = [room]  # TODO: BAD
         #ind = 0
         #self.slots[ind].send("ROOM", "Ocean", room.map, room.roomds.get_rect())
-        self.slots[whom].send("ROOM", "Ocean", room.map, room.roomds.get_rect())
+        self.slots[whom].send("ROOM", "Ocean", room.map, room.roomds.get_rect(), dude_here)
 
     def run(self):
         self.sock.listen(MAX_PLAYERS)
@@ -94,7 +98,9 @@ class Server(threading.Thread):
                         print "Rejected a connection"
                         continue
                     self.slots[ind].set_connection(conn)
-                    self.offer_room(ind, (25, 25))
+                    for room in self.slots[ind].overworld.terrain:
+                        self.offer_room(ind, (room.x, room.y),
+                                int((25, 25) in room))
                     print "Connected"
                 else:   # returning player's command
                     sender = self.get_sender(c)
@@ -120,12 +126,19 @@ class Server(threading.Thread):
     def cmd_msg(self, slot, argv):
         if argv[1][:1] == "/":
             command = argv[1][1:]
-        self.broadcast(*argv[1:])
+        self.broadcast(*argv)
 
     def cmd_move(self, slot, argv):
         vx, vy = map(int, argv[1:])
-        dude = self.slots[slot].dude
+        dude = self.slots[slot].overworld.slime
         dude.move(self.terrain[0], vx, vy)
+        if self.slots[slot].overworld.move_room():
+            pass
+        #    for room in self.slots[slot].overworld.terrain:
+        #        self.offer_room(slot, (room.x, room.y),
+        #                0)
+                        #int(self.slots[slot].overworld.room_data == room))
+            print "moved room"
         self.broadcast("MOVED", slot, vx, vy)
 
     def broadcast(self, *msg):
@@ -203,20 +216,24 @@ class Client(threading.Thread):
             buf = buf[MAX_PACKET_LENGTH:]
 
     def process_received(self, message):
-        print "recv:", message
+        #print "recv:", message
         msg = message.split(US)
         if msg[0] == "ROOM":
-            roomds = eval(msg[3])
-            room = eval(msg[1])((eval(msg[2]), roomds))
-            self.main.ui.terrain = [room]
-            self.main.ui.room_data = room
-            room.entities.add(self.main.ui.slime)
+            cls, dat, roomds, dude_here = map(eval, msg[1:])
+            room = cls((dat, roomds))
+            self.main.ui.terrain.append(room)
+            if dude_here:
+                self.main.ui.room_data = room
+                room.entities.add(self.main.ui.slime)
             self.main.map.add_room(*roomds)
         elif msg[0] == "MOVED":
             who, ax, ay = map(lambda q: int(float(q)), msg[1:])
-            dude = self.main.ui.terrain[0].entities.pop()
+            dude = self.main.ui.slime
             dude.move(self.main.ui.room_data, ax, ay)
-            self.main.ui.terrain[0].entities.add(dude)
+            if self.main.ui.move_room():
+                print "moved room"
+        elif msg[0] == "MSG":
+            print ' '.join(msg)
         else:
             print "Unknown or malformed command", msg[0]
 

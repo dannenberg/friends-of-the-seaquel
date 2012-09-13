@@ -74,13 +74,12 @@ class OverworldUI(ui.UI):
         self.room_data = None
 
         self.terrain = []
-        self.load_rooms_around((25, 25))
+        #self.load_rooms_around((25, 25))
         self.ui = []
 
         self.redraw()
 
     def load_rooms_around(self, (px, py)):
-        """
         if self.room_data is None:
             #self.room_data.entities.discard(self.slime)
             return GetRooms(self, (px, py)).run()
@@ -92,7 +91,7 @@ class OverworldUI(ui.UI):
                 break
 
         GetRooms(self, (px, py)).start()
-        return toR"""
+        return toR
 
     def redraw(self):
         pass
@@ -144,18 +143,24 @@ class OverworldUI(ui.UI):
                 self.load_rooms_around(pos)
                 return
 
-            newx = int(self.slime.centerx // (Room.TPS * 50))
-            newy = int(self.slime.centery // (Room.TPS * 50))
-            if not (0 <= newx < self.room_data.w and
-                    0 <= newy < self.room_data.h):
-                x, y = self.room_data.pos  # keep the current room's position
-                self.room_data.entities.discard(self.slime)
-                self.room_data = self.load_rooms_around((newx + self.room_data.x,
-                        newy + self.room_data.y))
-                self.room_data.entities.add(self.slime)
-                # readjust for the new room
-                self.slime.x += (x - self.room_data.x) * Room.TPS * 50
-                self.slime.y += (y - self.room_data.y) * Room.TPS * 50
+            self.move_room()
+
         elif self.slime.animations.name[1] != "idle":
             self.slime.animations.cur_animation = (
                 self.slime.animations.name[0], "idle")
+
+    def move_room(self):
+        newx = int(self.slime.centerx // (Room.TPS * 50))
+        newy = int(self.slime.centery // (Room.TPS * 50))
+        if not (0 <= newx < self.room_data.w and
+                0 <= newy < self.room_data.h):
+            x, y = self.room_data.pos  # keep the current room's position
+            self.room_data.entities.discard(self.slime)
+            self.room_data = self.load_rooms_around((newx + self.room_data.x,
+                    newy + self.room_data.y))
+            self.room_data.entities.add(self.slime)
+            # readjust for the new room
+            self.slime.x += (x - self.room_data.x) * Room.TPS * 50
+            self.slime.y += (y - self.room_data.y) * Room.TPS * 50
+            return True
+        return False
