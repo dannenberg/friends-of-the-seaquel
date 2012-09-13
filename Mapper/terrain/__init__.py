@@ -9,14 +9,14 @@ class Tile(object):
 class Room(object):
     TPS = 15  # Tiles per Square
 
-    def __init__(self, map_data, (tile_map, impassible), roomds):
+    def __init__(self, map_data, (tile_map, impassible), roomds, entities=[]):
         self.map = [d[:] for d in map_data]
         self.tile_map = tile_map
         self.surface = pygame.Surface(
             map(self.resize, (len(self.map[0]), len(self.map))))
         self.impassible = impassible
         self.roomds = roomds
-        self.entities = set()
+        self.entities = set(entities)
         self.transitions = {}
         self.redraw()
 
@@ -47,7 +47,7 @@ class Room(object):
         pos = (vx - (self.x - tlrx) * 50 * Room.TPS,
                vy - (self.y - tlry) * 50 * Room.TPS)
         surf.blit(self.surface, map(lambda q: -q, pos))
-        for e in self.entities:
+        for e in set(self.entities):
             e.act()
             e.reblit(surf, time_passed, pos)
 

@@ -96,10 +96,14 @@ TILESET3 = pygame.image.load("imgs/ocean.png")
 
 
 class Ocean(Room):
-    def __init__(self, room):
-        map_data = self.generate_room(room)
+    def __init__(self, room, entities=[]):
         impassible = ((1, 0), )
-        super(Ocean, self).__init__(map_data, (TILESET3, impassible), room)
+        if isinstance(room, RoomDS):
+            map_data = self.generate_room(room)
+        else:
+            map_data = room[0]
+            room = RoomDS(*(room[1]))
+        super(Ocean, self).__init__(map_data, (TILESET3, impassible), room, entities)
 
     def generate_room(self, room):
         width = room.w * Room.TPS
@@ -130,3 +134,6 @@ class Ocean(Room):
                 toR[y][0] = (0, 0)
                 toR[y + 1][0] = (0, 0)
         return toR
+
+    def __repr__(self):
+        return "It worked!"
