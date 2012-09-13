@@ -20,13 +20,13 @@ class Main:
         self.keys = set()
 
         self.map = MapDS()
-        self.map.expand_room()
         self.screen = pygame.display.set_mode(self.size)
         self.screen.fill((0xFF, ) * 3)
         self.last = None
 
         self.clicked = 0
         self.client = Client(self)
+        self.client.start()
         self.ui = OverworldUI(self, None)
 
     def ui_push(self, cls):
@@ -44,6 +44,7 @@ class Main:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.stop()
+                    self.client.stop()
                 elif event.type == pygame.KEYDOWN:
                     self.keys.add(event.key)
                     self.ui.handle_key(event)

@@ -80,6 +80,7 @@ class OverworldUI(ui.UI):
         self.redraw()
 
     def load_rooms_around(self, (px, py)):
+        """
         if self.room_data is None:
             #self.room_data.entities.discard(self.slime)
             return GetRooms(self, (px, py)).run()
@@ -91,7 +92,7 @@ class OverworldUI(ui.UI):
                 break
 
         GetRooms(self, (px, py)).start()
-        return toR
+        return toR"""
 
     def redraw(self):
         pass
@@ -126,6 +127,8 @@ class OverworldUI(ui.UI):
         if self.main.keys & set((pygame.K_s, pygame.K_DOWN)):
             yoff += 1
         if not (xoff == yoff == 0):  # there is movement
+            self.main.client.send("MOVE", xoff, yoff)
+            return
             ret = self.slime.move(self.room_data, xoff, yoff)
             if ret == "room":
                 self.room_data.entities.discard(self.slime)

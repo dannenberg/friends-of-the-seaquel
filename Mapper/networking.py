@@ -6,8 +6,11 @@ from Queue import Queue
 import sys, traceback
 
 from ui.map_ui import MapDS
+from terrain.rooms import Ocean
+from sprites.slime import SlimeAI
 
 RS = chr(30)
+US = chr(31)
 
 HOST = socket.gethostname()
 PORT = 11173
@@ -39,12 +42,13 @@ class UserSlot(object):
         assert((not safe_mode) or self.is_open())
         self.conn = connection
         self._status = UserSlot.PLAYER
+        self.dude = SlimeAI((50, 50))
 
     def is_open(self):
         return self._status == UserSlot.OPEN
 
     def send(self, *msg):
-        message = ' '.join(map(str, msg))
+        message = US.join(map(str, msg))
         self.conn.send(message + RS)
 
 
@@ -56,15 +60,25 @@ class Server(threading.Thread):
         self.sock.bind(ADDR)
         self.done = False
         self.slots = [UserSlot() for _ in xrange(MAX_PLAYERS)]
-        self.input_handlers = {"MSG": self.cmd_msg}
+        self.input_handlers = {"MSG": self.cmd_msg,
+                               "MOVE": self.cmd_move}
 
         print "Generating map...",
         self.map = MapDS()
         self.map.expand_room()
         print " done."
 
+        self.terrain = []  # TODO: BAD BAD BAD
+
     def cmd_restart(self):
         self.broadcast("RESTART")
+
+    def offer_room(self, whom, loc):
+        room = Ocean(self.map.get_at(loc))
+        self.terrain = [room]  # TODO: BAD
+        #ind = 0
+        #self.slots[ind].send("ROOM", "Ocean", room.map, room.roomds.get_rect())
+        self.slots[whom].send("ROOM", "Ocean", room.map, room.roomds.get_rect())
 
     def run(self):
         self.sock.listen(MAX_PLAYERS)
@@ -80,12 +94,14 @@ class Server(threading.Thread):
                         print "Rejected a connection"
                         continue
                     self.slots[ind].set_connection(conn)
+                    self.offer_room(ind, (25, 25))
                     print "Connected"
                 else:   # returning player's command
                     sender = self.get_sender(c)
                     message = c.recv(MAX_PACKET_LENGTH)  # am I stupid or is this just as good
                     if not message:  # close connection
                         c.close()
+                        print "player", (sender + 1), "exited"
                         self.slots[sender].set_open()
                     else:   # a real command
                         sender = self.get_sender(c)
@@ -95,7 +111,7 @@ class Server(threading.Thread):
                             self.handle_input(sender, msg)
 
     def handle_input(self, slot, message):
-        msg = message.split(" ")
+        msg = message.split(US)
         if msg[0] not in self.input_handlers:
             print "Unknown or malformed command:", msg[0]
             return
@@ -105,6 +121,12 @@ class Server(threading.Thread):
         if argv[1][:1] == "/":
             command = argv[1][1:]
         self.broadcast(*argv[1:])
+
+    def cmd_move(self, slot, argv):
+        vx, vy = map(int, argv[1:])
+        dude = self.slots[slot].dude
+        dude.move(self.terrain[0], vx, vy)
+        self.broadcast("MOVED", slot, vx, vy)
 
     def broadcast(self, *msg):
         for x in self.slots:
@@ -150,7 +172,7 @@ class Client(threading.Thread):
             print "Couldn't connect"
             return
         self.sock.settimeout(0.5)
-        self.send("MSG Hi there!")
+        self.send("MSG", "Hi there!")
         while not self.done:
             while (not self.done) and (RS not in self.recv_buf):
                 try:
@@ -169,20 +191,40 @@ class Client(threading.Thread):
             if not self.done:
                 term, _, self.recv_buf = self.recv_buf.partition(RS) 
                 self.process_received(term)
+        self.sock.close()
 
     def stop(self):
         self.done = True
 
-    def send(self, msg):
-        buf = msg + RS
+    def send(self, *msg):
+        buf = US.join(map(str, msg)) + RS
         while buf:
             self.sock.send(buf[:MAX_PACKET_LENGTH])
             buf = buf[MAX_PACKET_LENGTH:]
 
     def process_received(self, message):
         print "recv:", message
+        msg = message.split(US)
+        if msg[0] == "ROOM":
+            roomds = eval(msg[3])
+            room = eval(msg[1])((eval(msg[2]), roomds))
+            self.main.ui.terrain = [room]
+            self.main.ui.room_data = room
+            room.entities.add(self.main.ui.slime)
+            self.main.map.add_room(*roomds)
+        elif msg[0] == "MOVED":
+            who, ax, ay = map(lambda q: int(float(q)), msg[1:])
+            dude = self.main.ui.terrain[0].entities.pop()
+            dude.move(self.main.ui.room_data, ax, ay)
+            self.main.ui.terrain[0].entities.add(dude)
+        else:
+            print "Unknown or malformed command", msg[0]
+
 
 if __name__ == "__main__":
+    s = Server()
+    s.start()
+    print "s is your server"
     while 1:
         try:
             exec(raw_input(">"))
