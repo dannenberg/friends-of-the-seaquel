@@ -12,7 +12,8 @@ TILESET = pygame.image.load("imgs/grasslands.png")
 class Grasslands(Room):
     def __init__(self, room):
         map_data = self.generate_room(room)
-        impassible = tuple((x, y) for x in xrange(6) for y in xrange(4) if (x, y) not in ((0, 0), (4, 3), (4, 2)))
+        impassible = tuple((x, y) for x in xrange(6) for y in xrange(4)
+            if (x, y) not in ((0, 0), (4, 3), (4, 2), (4, 0)))
         super(Grasslands, self).__init__(map_data, (TILESET, impassible), room)
         self.entities.add(ElementalAI(
             (random.randint(1, room.w * Room.TPS - 10) * 50,
@@ -25,6 +26,8 @@ class Grasslands(Room):
         toR = [[(1, 0)] * width] + [
             [(1, 0)] + [(0, 0)] * (width - 2) + [(1, 0)]
             for _ in xrange(height - 2)] + [[(1, 0)] * width]
+
+        toR[7][7] = (4, 0)
 
         for x, y, dr in room.paths_iter():
             if (room.x, room.y) == (0, 0):

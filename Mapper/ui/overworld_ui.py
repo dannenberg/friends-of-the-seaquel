@@ -12,9 +12,9 @@ from sprites.elemental import ElementalAI
 SCREEN_SIZE = (600, 450)
 
 
-class OverworldUI(ui.UI):
+class GameplayUI(ui.UI):
     def __init__(self, main, parent):
-        super(OverworldUI, self).__init__(main, parent)
+        super(GameplayUI, self).__init__(main, parent)
         self.slime = SlimeAI((50, 50))
 
         self.terrain = []
@@ -59,12 +59,12 @@ class OverworldUI(ui.UI):
         pass
 
     def reblit(self, surf, time_passed):
-        super(OverworldUI, self).reblit(surf, time_passed)
-        center = self.slime.centerx - 300, self.slime.centery - 225
-        for t in self.terrain:
-            t.reblit(surf, time_passed, center, self.room_data.pos)
-        for u in self.ui:
-            u.reblit(surf)
+        super(GameplayUI, self).reblit(surf, time_passed)
+        #center = self.slime.centerx - 300, self.slime.centery - 225
+        #for t in self.terrain:
+        #    t.reblit(surf, time_passed, center, self.room_data.pos)
+        #for u in self.ui:
+        #    u.reblit(surf)
 
     def handle_key(self, event):
         if event.key == pygame.K_m:
@@ -112,3 +112,24 @@ class OverworldUI(ui.UI):
         elif self.slime.animations.name[1] != "idle":
             self.slime.animations.cur_animation = (
                 self.slime.animations.name[0], "idle")
+
+
+class OverworldUI(GameplayUI):
+    def reblit(self, surf, time_passed):
+        super(OverworldUI, self).reblit(surf, time_passed)
+        center = self.slime.centerx - 300, self.slime.centery - 225
+        for t in self.terrain:
+            t.reblit(surf, time_passed, center, self.room_data.pos)
+        for u in self.ui:
+            u.reblit(surf)
+
+
+class DungeonUI(GameplayUI):
+    def reblit(self, surf, time_passed):
+        super(DungeonUI, self).reblit(surf, time_passed)
+        center = self.slime.centerx - 300, self.slime.centery - 225
+        center = min(max(center[0], 0), Room.TPS * 50 * self.room_data.w - 600),\
+                 min(max(center[1], 0), Room.TPS * 50 * self.room_data.h - 450)
+        self.room_data.reblit(surf, time_passed, center, self.room_data.pos)
+        for u in self.ui:
+            u.reblit(surf)

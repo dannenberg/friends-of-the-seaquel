@@ -1,7 +1,7 @@
 import pygame
 
 from ui.map_ui import MapUI, MapDS
-from ui.overworld_ui import OverworldUI
+from ui.overworld_ui import OverworldUI, DungeonUI
 from networking import Client
 
 
