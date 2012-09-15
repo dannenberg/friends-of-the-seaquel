@@ -5,6 +5,7 @@ from sprites import Sprite, Animations
 
 
 class ElementalAI(Sprite):
+    SPEED = 1
     def __init__(self, (x, y)):
         def anon():
             last = -1

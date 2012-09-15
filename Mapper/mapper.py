@@ -27,13 +27,16 @@ class Main:
 
         self.clicked = 0
         self.client = Client(self)
-        self.ui = OverworldUI(self, None)
+        self.ui = DungeonUI(self, None)
 
     def ui_push(self, cls):
         self.ui = cls(self, self.ui)
 
     def ui_pop(self):
         self.ui = self.ui.parent
+
+    def ui_swap(self, cls):
+        self.ui = self.ui(self, self.ui.parent)
 
     def stop(self):
         self.done = True

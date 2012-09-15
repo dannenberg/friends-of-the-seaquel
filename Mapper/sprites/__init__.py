@@ -1,14 +1,18 @@
 import pygame
+from sys import maxint as forever
 from terrain import Room
 
+DIAG_CONST = (2 ** .5)
 
 class Sprite(pygame.sprite.DirtySprite):
-    """ The sprite class assumes """
     def __init__(self, animations, (x, y)=(0, 0)):
+        self.speed = type(self).SPEED
+        self.diag = self.speed / DIAG_CONST
         self.animations = animations
         self.layer = 1
 
         self.x, self.y = (x, y)
+        super(Sprite, self).__init__()
 
     def act(self):
         pass
@@ -59,10 +63,14 @@ class Animations(object):
 
     def set_animation(self, name):
         self.name = name
+        self.time = 0
         self._cur_animation = self.animations[name]()
         self.cur_frame = self._cur_animation.next()
 
     def set_frame(self, (x, y, t)):
+        if x is None:
+            self._cur_frame = (x, y, t)
+            return
         self._cur_frame = (x * self.size[0], y * self.size[1], t)
 
     src = property(lambda self: self.cur_frame[:2])
@@ -72,8 +80,8 @@ class Animations(object):
 
     def next(self):
         self.cur_frame = self.cur_animation.next()
-        while isinstance(self.cur_frame, basestring):
-            self.cur_animation = self.cur_frame
+        while self.cur_frame[0] is None:
+            self.cur_animation = self.cur_frame[1]
 
     def pass_time(self, time_passed):
         self.time += time_passed
