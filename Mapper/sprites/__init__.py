@@ -10,6 +10,7 @@ class Sprite(pygame.sprite.DirtySprite):
         self.diag = self.speed / DIAG_CONST
         self.animations = animations
         self.layer = 1
+        self.hitbox = None
 
         self.x, self.y = (x, y)
         super(Sprite, self).__init__()
@@ -45,9 +46,11 @@ class Sprite(pygame.sprite.DirtySprite):
     bottom = property(lambda self: self.y + self.height,
         lambda self, value: self.set_xy(y=value - self.height))
 
-    def reblit(self, surf, time_passed, (viewx, viewy)):
+    def reblit(self, surf, time_passed, (viewx, viewy), draw_hitboxes=False):
         self.animations.pass_time(time_passed)
         self.animations.reblit(surf, (self.x - viewx, self.y - viewy))
+        if self.hitbox and draw_hitboxes:
+            self.hitbox.reblit(surf, (viewx, viewy))
 
     def redraw(self):
         pass

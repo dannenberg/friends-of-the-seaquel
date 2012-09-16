@@ -1,6 +1,7 @@
 import pygame
 
 from sprites import Sprite, Animations, forever
+from hitbox import AxisRectHB
 
 
 # TODO: EVENTUALLY THIS IS GOING TO BE MORE GENERAL AND A SUPERCLASS
@@ -29,3 +30,15 @@ class DoorAI(Sprite):
              "opened": iter_hold(0), "closed":iter_hold(1)}, "closed")
         super(DoorAI, self).__init__(animations, (x, y))
         self.layer = 10
+        hb_coords = {0: ((0, 50), (100, 50)), 1: ((0, 0), (100, 50)),
+                     2: ((50, 0), (50, 100)), 3: ((0, 0), (50, 100))}
+        self.hitbox = AxisRectHB(self, *hb_coords[facing])
+        self.hold_hitbox = None
+
+    def close(self):
+        self.animations.set_animation("close")
+        self.hitbox, self.hold_hitbox = self.hold_hitbox, self.hitbox
+
+    def open(self):
+        self.animations.set_animation("open")
+        self.hitbox, self.hold_hitbox = self.hold_hitbox, self.hitbox

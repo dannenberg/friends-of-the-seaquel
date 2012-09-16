@@ -22,6 +22,8 @@ class GameplayUI(ui.UI):
         self.load_rooms_around((25, 25))
         self.ui = []
 
+        self.draw_hitboxes = False
+
         self.redraw()
 
     def load_rooms_around(self, (px, py)):
@@ -75,9 +77,11 @@ class GameplayUI(ui.UI):
         if event.key == pygame.K_o:
             for x in self.room_data.entities:
                 if x.animations.name == "opened":
-                    x.animations.set_animation("close")
+                    x.close()
                 elif x.animations.name == "closed":
-                    x.animations.set_animation("open")
+                    x.open()
+        if event.key == pygame.K_h:
+            self.draw_hitboxes ^= True
 
     def handle_key_up(self, event):
         if event.key == pygame.K_TAB:
@@ -156,6 +160,12 @@ class GameplayUI(ui.UI):
         slime.x += xoff * mult
         slime.y += yoff * mult
 
+        for e in self.room_data.entities:
+            if e is not slime and slime.hitbox.intersects(e.hitbox):
+                slime.x -= xoff * mult
+                slime.y -= yoff * mult
+                break
+
 
 class OverworldUI(GameplayUI):
     def reblit(self, surf, time_passed):
@@ -163,7 +173,7 @@ class OverworldUI(GameplayUI):
         center = self.slime.centerx - 300, self.slime.centery - 225
         center = map(int, center)
         for t in self.terrain:
-            t.reblit(surf, time_passed, center, self.room_data.pos)
+            t.reblit(surf, time_passed, center, self.room_data.pos, self.draw_hitboxes)
         for u in self.ui:
             u.reblit(surf)
 
@@ -175,6 +185,6 @@ class DungeonUI(GameplayUI):
         center = map(int, center)
         #center = min(max(center[0], 0), Room.TPS * 50 * self.room_data.w - 600),\
         #         min(max(center[1], 0), Room.TPS * 50 * self.room_data.h - 450)
-        self.room_data.reblit(surf, time_passed, center, self.room_data.pos)
+        self.room_data.reblit(surf, time_passed, center, self.room_data.pos, self.draw_hitboxes)
         for u in self.ui:
             u.reblit(surf)

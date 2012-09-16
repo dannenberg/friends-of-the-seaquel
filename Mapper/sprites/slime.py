@@ -1,6 +1,7 @@
 import pygame
 
 from sprites import Sprite, Animations
+from hitbox import CircleHB
 
 
 class SlimeAI(Sprite):
@@ -21,3 +22,4 @@ class SlimeAI(Sprite):
             for i, d in enumerate(["", "idle"], 1)}, ("downright", "idle"))
         super(SlimeAI, self).__init__(animations, (x, y))
         self.layer = 5
+        self.hitbox = CircleHB(self, (25, 25), 20)

@@ -96,13 +96,13 @@ class Room(object):
         """ In terms of character tile position from the top left room """
         return self.get_at((x - self.x * Room.TPS, y - self.y * Room.TPS))
 
-    def reblit(self, surf, time_passed, (vx, vy), (tlrx, tlry)):
+    def reblit(self, surf, time_passed, (vx, vy), (tlrx, tlry), draw_hitboxes=False):
         pos = (vx - (self.x - tlrx) * 50 * Room.TPS,
                vy - (self.y - tlry) * 50 * Room.TPS)
         surf.blit(self.surface, map(lambda q: -q, pos))
         for e in self.entities:
             e.act()
-            e.reblit(surf, time_passed, pos)
+            e.reblit(surf, time_passed, pos, draw_hitboxes)
 
     def redraw(self):
         for y, row in enumerate(self.map):

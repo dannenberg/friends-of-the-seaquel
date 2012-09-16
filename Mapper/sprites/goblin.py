@@ -2,9 +2,11 @@ import pygame
 import random
 
 from sprites import Sprite, Animations
+from hitbox import CircleHB
 
 
 class GoblinAI(Sprite):
+    SPEED = 0
     def __init__(self, (x, y)):
         def anon():
             delay = 50
@@ -21,3 +23,4 @@ class GoblinAI(Sprite):
         animations = Animations("goblin", (50, 50),
             {"idle": anon}, "idle")
         super(GoblinAI, self).__init__(animations, (x, y))
+        self.hitbox = CircleHB(self, (25, 25), 25)
