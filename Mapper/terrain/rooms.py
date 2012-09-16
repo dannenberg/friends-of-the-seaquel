@@ -140,14 +140,14 @@ TILESET4 = pygame.image.load("imgs/dungeon_blu.png")
 
 class Dungeon(Room):
     def __init__(self, room):
-        self.entities = set()
-        map_data = self.generate_room(room)
+        map_data, entities = self.generate_room(room)
         impassible = tuple(((x, y) for x in xrange(9) for y in xrange(7)
             if (x, y) not in ((2, 1), )))
         super(Dungeon, self).__init__(map_data, (TILESET4, impassible),
-            room, self.entities)
+            room, entities)
 
     def generate_room(self, room):
+        entities = set()
         width = room.w * Room.TPS
         height = room.h * Room.TPS
         toR = [[(0, 0)] + [(2, 0)] * (width - 2) + [(8, 0)]] + [
@@ -165,24 +165,24 @@ class Dungeon(Room):
                 toR[0][x] = (2, 1)
                 toR[0][x + 1] = (2, 1)
                 toR[0][x + 2] = (6, 0)
-                self.entities.add(DoorAI(map(lambda q: q * 50, (x, -1)), 0))
+                entities.add(DoorAI(map(lambda q: q * 50, (x, -1)), 0))
             elif dr == 2:
                 toR[y - 1][-1] = (8, 2)
                 toR[y][-1] = (2, 1)
                 toR[y + 1][-1] = (2, 1)
                 toR[y + 2][-1] = (8, 5)
-                self.entities.add(DoorAI(map(lambda q: q * 50, (width - 1, y)), 3))
+                entities.add(DoorAI(map(lambda q: q * 50, (width - 1, y)), 3))
             elif dr == 4:
                 toR[-1][x - 1] = (3, 6)
                 toR[-1][x] = (2, 1)
                 toR[-1][x + 1] = (2, 1)
                 toR[-1][x + 2] = (6, 6)
-                self.entities.add(DoorAI(map(lambda q: q * 50, (x, height - 1)), 1))
+                entities.add(DoorAI(map(lambda q: q * 50, (x, height - 1)), 1))
             elif dr == 8:
                 toR[y - 1][0] = (0, 2)
                 toR[y][0] = (2, 1)
                 toR[y + 1][0] = (2, 1)
                 toR[y + 2][0] = (0, 5)
-                self.entities.add(DoorAI(map(lambda q: q * 50, (-1, y)), 2))
+                entities.add(DoorAI(map(lambda q: q * 50, (-1, y)), 2))
 
-        return toR
+        return toR, entities

@@ -161,6 +161,7 @@ class OverworldUI(GameplayUI):
     def reblit(self, surf, time_passed):
         super(OverworldUI, self).reblit(surf, time_passed)
         center = self.slime.centerx - 300, self.slime.centery - 225
+        center = map(int, center)
         for t in self.terrain:
             t.reblit(surf, time_passed, center, self.room_data.pos)
         for u in self.ui:
@@ -171,6 +172,7 @@ class DungeonUI(GameplayUI):
     def reblit(self, surf, time_passed):
         super(DungeonUI, self).reblit(surf, time_passed)
         center = self.slime.centerx - 300, self.slime.centery - 225
+        center = map(int, center)
         #center = min(max(center[0], 0), Room.TPS * 50 * self.room_data.w - 600),\
         #         min(max(center[1], 0), Room.TPS * 50 * self.room_data.h - 450)
         self.room_data.reblit(surf, time_passed, center, self.room_data.pos)

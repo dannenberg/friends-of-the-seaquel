@@ -20,4 +20,4 @@ class SlimeAI(Sprite):
             "downleft", "left", "upleft"])
             for i, d in enumerate(["", "idle"], 1)}, ("downright", "idle"))
         super(SlimeAI, self).__init__(animations, (x, y))
-        self.layer = 15
+        self.layer = 5
