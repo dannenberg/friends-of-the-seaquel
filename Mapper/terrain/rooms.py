@@ -155,6 +155,18 @@ class Dungeon(Room):
             for _ in xrange(height - 2)] + [
             [(0, 6), ] + [(1, 6)] * (width - 2) + [(8, 6)]]
 
+        toR[1][1] = (1, 1)
+        toR[0][1] = (1, 0)
+
+        toR[1][-2] = (7, 1)
+        toR[0][-2] = (7, 0)
+
+        toR[-2][1] = (1, 1)
+        toR[-3][1] = (1, 2)
+
+        toR[-2][-2] = (7, 1)
+        toR[-3][-2] = (7, 2)
+
         for x, y, dr in room.paths_iter():
             if (room.x, room.y) == (0, 0):
                 print x, y, dr

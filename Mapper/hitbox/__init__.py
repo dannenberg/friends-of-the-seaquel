@@ -10,6 +10,9 @@ class AxisRectHB(object):
     y = property(lambda self: self.pos[1] + self.linked.y)
 
     def intersects(self, other, try_other=True):
+        if other is None:
+            return False
+
         try:
             return other.intersects(self, False)
         except TypeError:

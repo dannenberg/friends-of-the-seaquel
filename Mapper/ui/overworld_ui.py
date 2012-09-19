@@ -1,4 +1,5 @@
 import pygame
+import math
 
 import ui
 from ui.map_ui import MapUI
@@ -16,7 +17,7 @@ SCREEN_SIZE = (600, 450)
 class GameplayUI(ui.UI):
     def __init__(self, main, parent):
         super(GameplayUI, self).__init__(main, parent)
-        self.slime = SlimeAI((50, 50))
+        self.slime = SlimeAI((100, 100))
 
         self.terrain = []
         self.load_rooms_around((25, 25))
@@ -135,6 +136,21 @@ class GameplayUI(ui.UI):
         if dirc != slime.animations.name:
             slime.animations.set_animation(dirc)
         mult = slime.diag if xoff and yoff else slime.speed
+
+        """
+        for y in range(-slime.hitbox.r, slime.hitbox.r+1):
+            for x in range(-slime.hitbox.r, slime.hitbox.r+1):
+                lx = x + xoff * mult + slime.hitbox.x
+                ly = y + yoff * mult + slime.hitbox.y
+                if math.hypot(x, y) <= slime.hitbox.r:  # should i even consider this
+                    if room.get_at(self.tile_coords((lx, ly))) in room.impassible:
+                        #print (x, y), room.get_at(self.tile_coords((lx, ly)))
+                        if abs(x) > abs(y):
+                            slime.x -= xoff * mult
+                        else:
+                            slime.y -= yoff * mult"""
+
+
         hittin = None
         if xoff < 0:
             hittin = room.get_at(self.tile_coords((slime.left + xoff * mult, slime.centery)))
@@ -153,9 +169,10 @@ class GameplayUI(ui.UI):
 
         if hittin in room.impassible:
             yoff = 0
+        
 
-        if hittin in room.transitions:
-            return room.transitions[hittin]
+        #if hittin in room.transitions:
+        #    return room.transitions[hittin]
 
         slime.x += xoff * mult
         slime.y += yoff * mult
