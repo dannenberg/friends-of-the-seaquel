@@ -137,20 +137,45 @@ class GameplayUI(ui.UI):
             slime.animations.set_animation(dirc)
         mult = slime.diag if xoff and yoff else slime.speed
 
+        xm = slime.hitbox.x + xoff * mult #future pos's
+        ym = slime.hitbox.y + yoff * mult
+        x = xm % 50 # next pos in tile
+        y = ym % 50 # next pos in tile
+
+        xbar = 0
+        ybar = 0
+        disty = None
+        distx = None
+
+        if y > 50-slime.hitbox.r:
+            ybar = 1
+            disty = 50-y
+            if room.get_at(self.tile_coords((xm, ym + 50))) in room.impassible:
+                yoff = 0
+        elif y < slime.hitbox.r:
+            disty = y
+            ybar = -1
+            if room.get_at(self.tile_coords((xm, ym - 50))) in room.impassible:
+                yoff = 0
+        if x > 50 -slime.hitbox.r:
+            xbar = 1
+            distx = 50 - x
+            if room.get_at(self.tile_coords((xm + 50, ym))) in room.impassible:
+                xoff = 0
+        elif x < slime.hitbox.r:
+            distx = x
+            xbar = -1
+            if room.get_at(self.tile_coords((xm - 50, ym))) in room.impassible:
+                xoff = 0
+
+        if not (disty is None or distx is None) and\
+                math.hypot(distx, disty) < slime.hitbox.r and\
+                room.get_at(self.tile_coords((xm + xbar*50, ym +ybar *50))) in room.impassible:
+            xoff = 0
+            yoff =0
+        
+
         """
-        for y in range(-slime.hitbox.r, slime.hitbox.r+1):
-            for x in range(-slime.hitbox.r, slime.hitbox.r+1):
-                lx = x + xoff * mult + slime.hitbox.x
-                ly = y + yoff * mult + slime.hitbox.y
-                if math.hypot(x, y) <= slime.hitbox.r:  # should i even consider this
-                    if room.get_at(self.tile_coords((lx, ly))) in room.impassible:
-                        #print (x, y), room.get_at(self.tile_coords((lx, ly)))
-                        if abs(x) > abs(y):
-                            slime.x -= xoff * mult
-                        else:
-                            slime.y -= yoff * mult"""
-
-
         hittin = None
         if xoff < 0:
             hittin = room.get_at(self.tile_coords((slime.left + xoff * mult, slime.centery)))
@@ -169,8 +194,8 @@ class GameplayUI(ui.UI):
 
         if hittin in room.impassible:
             yoff = 0
+        """
         
-
         #if hittin in room.transitions:
         #    return room.transitions[hittin]
 

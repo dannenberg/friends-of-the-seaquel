@@ -48,6 +48,8 @@ class Main:
                 if event.type == pygame.QUIT:
                     self.stop()
                 elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                        self.stop()
                     self.keys.add(event.key)
                     self.ui.handle_key(event)
                 elif event.type == pygame.KEYUP:
