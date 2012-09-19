@@ -86,6 +86,14 @@ class Room(object):
     def resize(x):
         return 50 * x
 
+    def is_impassible_at(self, **kwargs):
+        # if a mix of pixel and tile is given, sum them
+        px, py = kwargs["pixel"] if ("pixel" in kwargs) else (0, 0)
+        tx, ty = kwargs["tile"] if ("tile" in kwargs) else (0, 0)
+
+        return self.get_at((px // 50 + tx, py // 50 + ty)) in self.impassible
+
+
     def get_at(self, (x, y)):
         """ In terms of character tile position from the top left of this room """
         if 0 <= y < len(self.map) and 0 <= x < len(self.map[int(y)]):

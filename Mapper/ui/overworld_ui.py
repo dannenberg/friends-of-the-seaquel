@@ -126,9 +126,6 @@ class GameplayUI(ui.UI):
             self.slime.animations.cur_animation = (
                 self.slime.animations.name[0], "idle")
 
-    def tile_coords(self, (x, y)):
-        return map(lambda q: q // 50, (x, y))
-
     def move_player(self, room, xoff=0, yoff=0):
         dirc = (["upleft", "up", "upright", "left", "", "right",
                 "downleft", "down", "downright"][xoff + yoff * 3 + 4], "")
@@ -137,65 +134,50 @@ class GameplayUI(ui.UI):
             slime.animations.set_animation(dirc)
         mult = slime.diag if xoff and yoff else slime.speed
 
-        xm = slime.hitbox.x + xoff * mult #future pos's
+        # ASSUMPTIONS WITH THIS ALGORITHM:
+        #  max speed < hitbox radius
+        #  hitbox diameter < grid size
+        xm = slime.hitbox.x + xoff * mult  # future pos's
         ym = slime.hitbox.y + yoff * mult
-        x = xm % 50 # next pos in tile
-        y = ym % 50 # next pos in tile
+        tile_x = xm % 50  # relative position of the center within the tile
+        tile_y = ym % 50
 
         xbar = 0
         ybar = 0
-        disty = None
         distx = None
+        disty = None
 
-        if y > 50-slime.hitbox.r:
+        if tile_y > 50 - slime.hitbox.r:
             ybar = 1
-            disty = 50-y
-            if room.get_at(self.tile_coords((xm, ym + 50))) in room.impassible:
+            disty = tile_y - 50
+            if room.is_impassible_at(pixel=(xm, ym), tile=(0, 1)):
                 yoff = 0
-        elif y < slime.hitbox.r:
-            disty = y
+        elif tile_y < slime.hitbox.r:
+            disty = tile_y
             ybar = -1
-            if room.get_at(self.tile_coords((xm, ym - 50))) in room.impassible:
+            if room.is_impassible_at(pixel=(xm, ym), tile=(0, -1)):
                 yoff = 0
-        if x > 50 -slime.hitbox.r:
+        if tile_x > 50 -slime.hitbox.r:
             xbar = 1
-            distx = 50 - x
-            if room.get_at(self.tile_coords((xm + 50, ym))) in room.impassible:
+            distx = tile_x - 50
+            if room.is_impassible_at(pixel=(xm, ym), tile=(1, 0)):
                 xoff = 0
-        elif x < slime.hitbox.r:
-            distx = x
+        elif tile_x < slime.hitbox.r:
+            distx = tile_x
             xbar = -1
-            if room.get_at(self.tile_coords((xm - 50, ym))) in room.impassible:
+            if room.is_impassible_at(pixel=(xm, ym), tile=(-1, 0)):
                 xoff = 0
 
-        if not (disty is None or distx is None) and\
-                math.hypot(distx, disty) < slime.hitbox.r and\
-                room.get_at(self.tile_coords((xm + xbar*50, ym +ybar *50))) in room.impassible:
-            xoff = 0
-            yoff =0
-        
+        if not (disty is None or distx is None):  # diagonal might be a concern
+            hypot = math.hypot(distx, disty)  # distance to corner
+            if (hypot < slime.hitbox.r and
+                    room.is_impassible_at(pixel=(xm, ym), tile=(xbar, ybar))):
+                # next loc WAS a concern
+                mult = math.hypot(xoff, yoff)  # get how fast you're going (might have changed)
 
-        """
-        hittin = None
-        if xoff < 0:
-            hittin = room.get_at(self.tile_coords((slime.left + xoff * mult, slime.centery)))
-        elif xoff > 0:
-            hittin = room.get_at(self.tile_coords((slime.right + xoff * mult, slime.centery)))
+                xoff += (distx * mult) / hypot  # normalize the distance to the corner
+                yoff += (disty * mult) / hypot  # and push back by your motion vector
 
-        if hittin in room.impassible:
-            xoff = 0
-
-
-        hittin = None
-        if yoff < 0:
-            hittin = room.get_at(self.tile_coords((slime.centerx, slime.top + yoff * mult)))
-        elif yoff > 0:
-            hittin = room.get_at(self.tile_coords((slime.centerx, slime.bottom + yoff * mult)))
-
-        if hittin in room.impassible:
-            yoff = 0
-        """
-        
         #if hittin in room.transitions:
         #    return room.transitions[hittin]
 
