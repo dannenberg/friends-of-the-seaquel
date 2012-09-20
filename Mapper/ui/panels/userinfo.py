@@ -1,20 +1,33 @@
-import pygame
 import random
+import pygame
+
+from ..panels import draw_rounded_rect
 
 
-pygame.font.init()
+class Fadebox(object):
+    FONT = pygame.font.Font(None, 20)
+    def __init__(self):
+        self.surface = pygame.Surface((300, 200), pygame.SRCALPHA)
+        self.temp_surf = pygame.Surface((self.surface.get_width(), self.surface.get_height())).convert()
+        self.fade = 255
+        self.redraw()
 
-def draw_rounded_rect(surf, color, rect, radius):
-    r1x = rect[0][0] + radius
-    r2x = rect[0][0]
-    r1y = rect[0][1]
-    r2y = rect[0][1] + radius
-    w, h = rect[1]
-    pygame.draw.rect(surf, color, ((r1x, r1y), (w - radius * 2, h)))
-    pygame.draw.rect(surf, color, ((r2x, r2y), (w, h - radius * 2)))
-    for pos in ((r1x, r2y), (w + r2x - radius, r2y),
-                (r1x, h + r1y - radius), (w + r2x - radius, h + r1y - radius)):
-        pygame.draw.circle(surf, color, pos, radius)
+    def redraw(self):
+        draw_rounded_rect(self.surface, (0, 0, 0, 0xDD), ((0, 0), (300, 200)), 15)
+        for i, x in enumerate("hey you crazy kid!\nStop fading so much!\nStop it!\nOh goddddd".split("\n")):
+            self.surface.blit(Fadebox.FONT.render(x, True, (0xFF, ) * 3), (15, 15 + i * 20))
+
+    def blit_alpha(self, surf, (x, y), opacity):
+        self.temp_surf.blit(surf, (-x, -y))
+        self.temp_surf.blit(self.surface, (0, 0))
+        self.temp_surf.set_alpha(opacity)
+        surf.blit(self.temp_surf, (x, y))
+
+    def reblit(self, surf):
+        self.blit_alpha(surf, (25, 25), self.fade)
+        dr = (self.fade % 2) * -4 + 2
+        self.fade = min(0xFF, max(self.fade + dr, 0))
+
 
 class UsersInfoPanel(object):
     CELLSPACING = 10
@@ -37,6 +50,7 @@ class UsersInfoPanel(object):
 
     def reblit(self, surf):
         surf.blit(self.surface, (150, 25))
+
 
 class UserPanel(pygame.Surface):
     def __init__(self, player, cell_width, cell_height):

@@ -3,7 +3,8 @@ import math
 
 import ui
 from ui.map_ui import MapUI
-from ui.panels import UsersInfoPanel
+from ui.panels.userinfo import UsersInfoPanel, Fadebox
+from ui.panels.chatbox import Chatbox
 from terrain import Room
 from terrain.rooms import *
 from sprites.slime import SlimeAI
@@ -15,13 +16,18 @@ SCREEN_SIZE = (600, 450)
 
 
 class GameplayUI(ui.UI):
+    GAME_MODE = object()
+    TYPE_MODE = object()
+
     def __init__(self, main, parent):
         super(GameplayUI, self).__init__(main, parent)
         self.slime = SlimeAI((100, 100))
 
         self.terrain = []
         self.load_rooms_around((25, 25))
-        self.ui = []
+        self.chatbox = Chatbox()
+        self.ui = [self.chatbox, Fadebox()]
+        self.mode = GameplayUI.GAME_MODE
 
         self.draw_hitboxes = False
 
@@ -70,26 +76,50 @@ class GameplayUI(ui.UI):
         #for u in self.ui:
         #    u.reblit(surf)
 
+    def set_mode(self, mode):
+        if self.mode == GameplayUI.TYPE_MODE:
+            self.chatbox.hide_time = None
+            if self.chatbox.input_box.text:
+                self.chatbox.message(False, self.chatbox.input_box.text)
+            self.chatbox.input_box.submit(None)
+        self.mode = mode
+        if self.mode == GameplayUI.TYPE_MODE:
+            self.chatbox.hide_time = True
+
     def handle_key(self, event):
-        if event.key == pygame.K_m:
-            self.main.ui_push(MapUI)
-        if event.key == pygame.K_TAB:
-            self.ui.append(UsersInfoPanel())
-        if event.key == pygame.K_o:
-            for x in self.room_data.entities:
-                if x.animations.name == "opened":
-                    x.close()
-                elif x.animations.name == "closed":
-                    x.open()
-        if event.key == pygame.K_h:
-            self.draw_hitboxes ^= True
+        if self.mode is GameplayUI.GAME_MODE:
+            if event.key == pygame.K_m:
+                self.main.ui_push(MapUI)
+            if event.key == pygame.K_TAB:
+                self.ui.append(UsersInfoPanel())
+            if event.key == pygame.K_o:
+                for x in self.room_data.entities:
+                    if x.animations.name == "opened":
+                        x.close()
+                    elif x.animations.name == "closed":
+                        x.open()
+            if event.key == pygame.K_h:
+                self.draw_hitboxes ^= True
+            if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                self.set_mode(GameplayUI.TYPE_MODE)
+        elif self.mode is GameplayUI.TYPE_MODE:
+            if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                self.set_mode(GameplayUI.GAME_MODE)
+                #self.chatbox.input_box.submit(self.main.client)
+            elif event.key == pygame.K_BACKSPACE:
+                self.chatbox.remove_chars()
+            elif event.unicode != "":
+                self.chatbox.add_string(event.unicode)
 
     def handle_key_up(self, event):
-        if event.key == pygame.K_TAB:
-            self.ui = []  # TODO: NO NO NO NO NO
+        if self.mode is GameplayUI.GAME_MODE:
+            if event.key == pygame.K_TAB:
+                self.ui = list(filter(lambda q: not isinstance(q, UsersInfoPanel), self.ui))
 
     def update(self):
         """ Not used by Server, only locally """
+        if self.mode is not GameplayUI.GAME_MODE:
+            return
         xoff, yoff = 0, 0
         if self.main.keys & set((pygame.K_a, pygame.K_LEFT)):
             xoff -= 1
