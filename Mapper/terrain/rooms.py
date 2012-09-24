@@ -7,15 +7,14 @@ from sprites.goblin import GoblinAI
 from sprites.elemental import ElementalAI
 from sprites.door import DoorAI
 
-TILESET = pygame.image.load("imgs/grasslands.png")
-
 
 class Grasslands(Room):
+    TILESET = pygame.image.load("imgs/grasslands.png")
     def __init__(self, room):
         map_data = self.generate_room(room)
         impassible = tuple((x, y) for x in xrange(6) for y in xrange(4)
             if (x, y) not in ((0, 0), (4, 3), (4, 2), (4, 0)))
-        super(Grasslands, self).__init__(map_data, (TILESET, impassible), room)
+        super(Grasslands, self).__init__(map_data, impassible, room)
         self.entities.add(ElementalAI(
             (random.randint(1, room.w * Room.TPS - 10) * 50,
             random.randint(1, room.h * Room.TPS) * 50)))
@@ -71,17 +70,16 @@ class Grasslands(Room):
         toR[2][-5] = (0, 2)
         toR[3][-5] = (0, 3)
 
-TILESET2 = pygame.image.load("imgs/inside.png")
-
 
 class Inside(Room):
+    TILESET = pygame.image.load("imgs/inside.png")
     def __init__(self, room_toR, player_toR):
         self.room_toR = room_toR
         self.player_toR = player_toR
         room = RoomDS((0, 0), (1, 1))
         map_data = self.generate_room(room)
         impassible = ((0, 0), (1, 0), (3, 0), (0, 1), (3, 1), (0, 2), (2, 2), (3, 2))
-        super(Inside, self).__init__(map_data, (TILESET2, impassible), room)
+        super(Inside, self).__init__(map_data, impassible, room)
         self.entities.add(GoblinAI((200, 50)))
         self.transitions = {(2, 1): "out"}
 
@@ -96,14 +94,13 @@ class Inside(Room):
 
         return toR
 
-TILESET3 = pygame.image.load("imgs/ocean.png")
-
 
 class Ocean(Room):
+    TILESET = pygame.image.load("imgs/ocean.png")
     def __init__(self, room):
         map_data = self.generate_room(room)
         impassible = ((1, 0), )
-        super(Ocean, self).__init__(map_data, (TILESET3, impassible), room)
+        super(Ocean, self).__init__(map_data, impassible, room)
 
     def generate_room(self, room):
         width = room.w * Room.TPS
@@ -135,15 +132,14 @@ class Ocean(Room):
                 toR[y + 1][0] = (0, 0)
         return toR
 
-TILESET4 = pygame.image.load("imgs/dungeon_blu.png")
-
 
 class Dungeon(Room):
+    TILESET = pygame.image.load("imgs/dungeon_blu.png")
     def __init__(self, room):
         map_data, entities = self.generate_room(room)
         impassible = tuple(((x, y) for x in xrange(9) for y in xrange(7)
             if (x, y) not in ((2, 1), )))
-        super(Dungeon, self).__init__(map_data, (TILESET4, impassible),
+        super(Dungeon, self).__init__(map_data, impassible,
             room, entities)
 
     def generate_room(self, room):
