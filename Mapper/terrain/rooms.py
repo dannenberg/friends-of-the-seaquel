@@ -5,6 +5,7 @@ from terrain import Room
 from ui.map_ui import RoomDS
 from sprites.goblin import GoblinAI
 from sprites.elemental import ElementalAI
+from sprites.block import BlockAI
 from sprites.door import DoorAI
 
 
@@ -143,7 +144,7 @@ class Dungeon(Room):
             room, entities)
 
     def generate_room(self, room):
-        entities = set()
+        entities = set([BlockAI((300, 300))])
         width = room.w * Room.TPS
         height = room.h * Room.TPS
         toR = [[(0, 0)] + [(2, 0)] * (width - 2) + [(8, 0)]] + [
@@ -194,3 +195,24 @@ class Dungeon(Room):
                 entities.add(DoorAI(map(lambda q: q * 50, (-1, y)), 2))
 
         return toR, entities
+
+
+class TestRoom(Room):
+    TILESET = pygame.image.load("imgs/test.png")
+    def __init__(self, room):
+        impassible = set()
+        if isinstance(room, RoomDS):
+            map_data, entities = self.generate_room(room)
+        else:
+            map_data, entities = room, set()
+        super(TestRoom, self).__init__(map_data, impassible,
+            room, entities)
+
+    def generate_room(self, room):
+        return ([(random.randint(0, 3), random.randint(0, 3))
+            for x in xrange(room.w * Room.TPS)
+            for y in xrange(room.h * Room.TPS)], set())
+
+
+ALL_ROOM_TYPES = [Grasslands, Inside, Ocean, Dungeon, TestRoom]
+assert(len(ALL_ROOM_TYPES) < 256)  # the way we save rooms currently does not allow for this

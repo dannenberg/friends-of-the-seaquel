@@ -93,7 +93,6 @@ class Room(object):
 
         return self.get_at((px // 50 + tx, py // 50 + ty)) in self.impassible
 
-
     def get_at(self, (x, y)):
         """ In terms of character tile position from the top left of this room """
         if 0 <= y < len(self.map) and 0 <= x < len(self.map[int(y)]):

@@ -26,7 +26,7 @@ class GameplayUI(ui.UI):
         self.terrain = []
         self.load_rooms_around((25, 25))
         self.chatbox = Chatbox()
-        self.ui = [self.chatbox, Fadebox()]
+        self.ui = [self.chatbox]
         self.mode = GameplayUI.GAME_MODE
 
         self.draw_hitboxes = False
@@ -216,8 +216,10 @@ class GameplayUI(ui.UI):
 
         for e in self.room_data.entities:
             if e is not slime and slime.hitbox.intersects(e.hitbox):
-                slime.x -= xoff * mult
-                slime.y -= yoff * mult
+                xo, yo = map(lambda q: q * mult, (xoff, yoff))
+                slime.x -= xo
+                slime.y -= yo
+                slime.hitbox.push(e.hitbox, (xo, yo))
                 break
 
 
