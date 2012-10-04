@@ -59,7 +59,10 @@ class SpriteList(object):
 
 
 class Room(object):
-    TPS = 15  # Tiles per Square
+    TPS = 16  # Tiles per Square
+    UP, UPRIGHT, RIGHT, DOWNRIGHT, DOWN, DOWNLEFT, LEFT, UPLEFT, ALL = (
+        2 ** x for x in xrange(9))
+    ALL -= 1
 
     def __init__(self, map_data, impassible, roomds, entities=[]):
         self.map = [d[:] for d in map_data]
@@ -81,6 +84,23 @@ class Room(object):
 
     def __contains__(self, (x, y)):
         return (0 <= x - self.x < self.w) and (0 <= y - self.y < self.h)
+
+    def convert_walls(self, room, wall, wall_lookup, alsowall=[]):
+        alsowall = list(alsowall) + [wall]
+        def anonaway(e, (x, y)):
+            if e != wall:
+                return e
+            val = 0
+            for i, (ax, ay) in enumerate(((0, -1), (1, -1), (1, 0), (1, 1),
+                    (0, 1), (-1, 1), (-1, 0), (-1, -1))):
+                ax += x
+                ay += y
+                if (not (0 <= ay < len(room) and 0 <= ax < len(room[ay])) or
+                        room[ay][ax] in alsowall):
+                    val |= 2 ** i
+            return wall_lookup[val]  # wall_lookup.get(val, (1, 1))
+        return [[anonaway(e, (x, y)) for x, e in enumerate(row)]
+            for y, row in enumerate(room)]
 
     @staticmethod
     def resize(x):

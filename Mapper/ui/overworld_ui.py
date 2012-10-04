@@ -58,7 +58,7 @@ class GameplayUI(ui.UI):
                 return item
 
         if (x - 25) ** 2 + (y - 25) ** 2 < 625:
-            room_obj = Dungeon(room)
+            room_obj = DungeonMaze(room)
         else:
             room_obj = Ocean(room)
         self.terrain.append(room_obj)
