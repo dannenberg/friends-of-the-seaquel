@@ -11,6 +11,7 @@ from sprites.slime import SlimeAI
 from sprites.goblin import GoblinAI
 from sprites.elemental import ElementalAI
 from sprites.door import DoorAI
+from sprites.owlbear import OwlbearAI
 
 SCREEN_SIZE = (600, 450)
 
@@ -21,7 +22,7 @@ class GameplayUI(ui.UI):
 
     def __init__(self, main, parent):
         super(GameplayUI, self).__init__(main, parent)
-        self.slime = SlimeAI((100, 100))
+        self.slime = OwlbearAI((100, 100))
 
         self.terrain = []
         self.load_rooms_around((25, 25))
