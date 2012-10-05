@@ -57,6 +57,14 @@ class SpriteList(object):
                 return True
         return False
 
+    def __str__(self):
+        s = ""
+        for layer, lst in self._entities:
+            s += "layer:" + str(layer) + "\n"
+            for e in lst:
+                s += "- " + str(e) + "\n"
+        return s
+
 
 class Room(object):
     TPS = 16  # Tiles per Square

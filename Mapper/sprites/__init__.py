@@ -47,12 +47,16 @@ class Sprite(pygame.sprite.DirtySprite):
         lambda self, value: self.set_xy(y=value - self.height))
 
     def reblit(self, surf, time_passed, (viewx, viewy), draw_hitboxes=False):
-        self.animations.pass_time(time_passed)
-        self.animations.reblit(surf, (self.x - viewx, self.y - viewy))
+        if self.animations is not None:
+            self.animations.pass_time(time_passed)
+            self.animations.reblit(surf, (self.x - viewx, self.y - viewy))
         if self.hitbox and draw_hitboxes:
             self.hitbox.reblit(surf, (viewx, viewy))
 
     def redraw(self):
+        pass
+
+    def on_hit(self, other):
         pass
 
 

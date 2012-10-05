@@ -7,15 +7,16 @@ from sprites.goblin import GoblinAI
 from sprites.elemental import ElementalAI
 from sprites.block import BlockAI
 from sprites.door import DoorAI
+from sprites.teleport import TeleportAI
 
 
 class Grasslands(Room):
     TILESET = pygame.image.load("imgs/grasslands.png")
     def __init__(self, room):
-        map_data = self.generate_room(room)
+        map_data, entities = self.generate_room(room)
         impassible = tuple((x, y) for x in xrange(6) for y in xrange(4)
             if (x, y) not in ((0, 0), (4, 3), (4, 2), (4, 0)))
-        super(Grasslands, self).__init__(map_data, impassible, room)
+        super(Grasslands, self).__init__(map_data, impassible, room, entities)
         self.entities.add(ElementalAI(
             (random.randint(1, room.w * Room.TPS - 10) * 50,
             random.randint(1, room.h * Room.TPS) * 50)))
@@ -51,8 +52,8 @@ class Grasslands(Room):
                 toR[y - 1][0] = (0, 0)
                 toR[y][0] = (0, 0)
                 toR[y + 1][0] = (0, 0)
-        self.build_house(toR)
-        return toR
+        entities = self.build_house(toR)
+        return toR, entities
 
     def build_house(self, toR):
         toR[1][-2] = (5, 1)
@@ -70,6 +71,9 @@ class Grasslands(Room):
         toR[1][-5] = (0, 1)
         toR[2][-5] = (0, 2)
         toR[3][-5] = (0, 3)
+        return [TeleportAI(
+            map(lambda q: q * 50, (len(toR[0]) - 3, 2.5)),
+            (50, 50))]
 
 
 class Inside(Room):

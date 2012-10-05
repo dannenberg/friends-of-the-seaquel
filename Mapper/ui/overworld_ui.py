@@ -219,7 +219,8 @@ class GameplayUI(ui.UI):
                 xo, yo = map(lambda q: q * mult, (xoff, yoff))
                 slime.x -= xo
                 slime.y -= yo
-                slime.hitbox.push(e.hitbox, (xo, yo))
+                if not e.on_hit(slime):
+                    slime.hitbox.push(e.hitbox, (xo, yo))
                 break
 
 

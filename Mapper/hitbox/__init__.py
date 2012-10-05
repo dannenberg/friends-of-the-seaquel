@@ -83,7 +83,6 @@ class CircleHB(HB):
                 xoff *= self.mass / totmass
                 other.linked.x += xoff
             else:  # hitting a corner
-                """ THIS IS CURRENTLY WRONG, AND POSSIBLY CATASTROPHICALLY SO """
                 xcorn = other.x + xtri * other.width   # location of the corner
                 ycorn = other.y + ytri * other.height  # of the box
 
@@ -103,6 +102,26 @@ class CircleHB(HB):
                 other.linked.y -= pushy
             self.linked.x += xoff
             self.linked.y += yoff
+
+        elif isinstance(other, CircleHB):
+            totmass = float(self.mass + other.mass)
+            distx = other.x - self.x
+            disty = other.y - self.y
+            hypot = math.hypot(distx, disty)  # distance
+            mult = math.hypot(xoff, yoff)  # get how fast you're going (might have changed)
+            pushx = (distx * mult) / hypot
+            pushy = (disty * mult) / hypot
+            pushx *= self.mass / totmass  # normalize the distance to the corner
+            pushy *= self.mass / totmass  # and push back by your motion vector
+            xoff += pushx
+            yoff += pushy
+
+            other.linked.x -= pushx
+            other.linked.y -= pushy
+            self.linked.x += xoff
+            self.linked.y += yoff
+            
+
 
     def intersects(self, other, try_other=True):
         if isinstance(other, AxisRectHB):
