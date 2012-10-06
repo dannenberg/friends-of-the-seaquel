@@ -7,8 +7,10 @@ from hitbox import CircleHB
 class OwlbearAI(Sprite):
     SPEED = 5
     def __init__(self, (x, y)):
+        sprites_drawn = (0, 2, 4, 6)
         def iter(xoff, delay):
-            xoff = 0
+            if xoff not in sprites_drawn:
+                xoff = (0 if (xoff in (1, 7)) else 4)
             def anon():
                 while 1:
                     yield (xoff, 0, 50 * delay)
@@ -21,7 +23,8 @@ class OwlbearAI(Sprite):
                     yield (xoff, 3, 50 * delay)
             return anon
         def iter_idle(xoff, delay):
-            xoff = 0
+            if xoff not in sprites_drawn:
+                xoff = (4 if (xoff in (1, 7)) else 0)
             delay = 3
             def anon():
                 while 1:
