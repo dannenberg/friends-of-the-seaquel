@@ -37,8 +37,8 @@ class OwlbearAI(Sprite):
             "up", "upright", "right", "downright", "down",
             "downleft", "left", "upleft"])
             for f, d in [(iter, ""), (iter_idle, "idle")]}
-        animations = Animations("owlbear", (50, 50), andict
-            , ("downright", "idle"))
+        animations = Animations("owlbear", (50, 50), andict,
+            ("downright", "idle"))
         super(OwlbearAI, self).__init__(animations, (x, y))
         self.layer = 5
         self.hitbox = CircleHB(self, (25, 25), 24, 50)

@@ -43,7 +43,7 @@ class GameplayUI(ui.UI):
         except AttributeError:
             pass
         self.room_data = self.load_room((rx, ry))
-        self.room_data.entities.add(self.slime)
+        self.room_data.add_entity(self.slime)
 
     def load_room(self, (x, y)):
         room = self.main.map.get_at((x, y))
@@ -132,16 +132,16 @@ class GameplayUI(ui.UI):
             yoff += 1
         if not (xoff == yoff == 0):  # there is movement
             ret = self.move_player(self.room_data, xoff, yoff)
-            if ret == "room":
-                self.room_data.entities.discard(self.slime)
-                self.room_data = Inside(self.room_data.pos, self.slime.pos)
-                self.room_data.entities.add(self.slime)
-                self.terrain = [self.room_data]
-                self.slime.pos = (50, 360)
-                return
-            elif ret == "out":
-                self.slime.pos = self.room_data.player_toR
-                self.load_rooms_around(self.room_data.room_toR)
+            # if ret == "room":
+            #     self.room_data.entities.discard(self.slime)
+            #     self.room_data = Inside(self.room_data.pos, self.slime.pos)
+            #     self.room_data.entities.add(self.slime)
+            #     self.terrain = [self.room_data]
+            #     self.slime.pos = (50, 360)
+            #     return
+            # elif ret == "out":
+            #     self.slime.pos = self.room_data.player_toR
+            #     self.load_rooms_around(self.room_data.room_toR)
 
             newx = int(self.slime.centerx // (Room.TPS * 50))
             newy = int(self.slime.centery // (Room.TPS * 50))

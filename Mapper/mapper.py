@@ -36,7 +36,7 @@ class Main:
         self.ui = self.ui.parent
 
     def ui_swap(self, cls):
-        self.ui = self.ui(self, self.ui.parent)
+        self.ui = cls(self, self.ui.parent)
 
     def stop(self):
         self.done = True

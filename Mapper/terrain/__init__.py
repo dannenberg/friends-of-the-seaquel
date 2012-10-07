@@ -83,7 +83,15 @@ class Room(object):
         self.transitions = {}
         self.redraw()
 
-    entities = property(lambda self: self._entities)  # prevents magic: feel free to remove when all magic has been eliminated
+    def add_entity(self, entity, layer=None):
+        self._entities.add(entity, layer)
+        entity._room = self
+
+    def discard_entity(self, entity):
+        if self._entities.discard(entity):
+            entity._room = None
+
+    entities = property(lambda self: iter(self._entities))  # prevents magic
     pos = property(lambda self: (self.roomds.x, self.roomds.y))
     x = property(lambda self: self.roomds.x)
     y = property(lambda self: self.roomds.y)

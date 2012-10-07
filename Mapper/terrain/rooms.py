@@ -20,7 +20,6 @@ class Grasslands(Room):
         self.entities.add(ElementalAI(
             (random.randint(1, room.w * Room.TPS - 10) * 50,
             random.randint(1, room.h * Room.TPS) * 50)))
-        self.transitions = {(4, 3): "room"}
 
     def generate_room(self, room):
         width = room.w * Room.TPS
@@ -86,7 +85,6 @@ class Inside(Room):
         impassible = ((0, 0), (1, 0), (3, 0), (0, 1), (3, 1), (0, 2), (2, 2), (3, 2))
         super(Inside, self).__init__(map_data, impassible, room)
         self.entities.add(GoblinAI((200, 50)))
-        self.transitions = {(2, 1): "out"}
 
     def generate_room(self, room):
         width = room.w * 12
@@ -386,5 +384,5 @@ class TestRoom(Room):
             for y in xrange(room.h * Room.TPS)], set())
 
 
-ALL_ROOM_TYPES = [Grasslands, Inside, Ocean, Dungeon, TestRoom]
+ALL_ROOM_TYPES = [Grasslands, Inside, Ocean, Dungeon, TestRoom, DungeonMaze]
 assert(len(ALL_ROOM_TYPES) < 256)  # the way we save rooms currently does not allow for this

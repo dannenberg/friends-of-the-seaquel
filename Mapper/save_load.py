@@ -6,8 +6,8 @@ from mapper import Main
 from terrain.rooms import ALL_ROOM_TYPES
 
 world_name = "TestWorld"
-url = os.path.join("..", "saves", world_name) + os.sep
-room_url = lambda x, y: url + "room_data" + os.sep + "r." + str(x) + "." + str(y) + ".dat"
+url = os.path.join("..", "saves", world_name, "")
+room_url = lambda x, y: ''.join(url, "room_data", os.sep, "r.", str(x), ".", str(y), ".dat")
 
 def load_roomlayout():
     md = MapDS()  # empty landingpad
@@ -16,13 +16,8 @@ def load_roomlayout():
         data = []
         #count = 0
         while byte:
-            #count += 1
-            #if count > 5000:
-            #    print "Something is wrong"
-            #    break
             data.append(struct.unpack('B', byte)[0])
             if len(data) == 4:
-                print data
                 md.add_room(data[:2], data[2:])
                 data = []
             byte = f.read(1)
@@ -59,6 +54,7 @@ def load_room((rx, ry)):
     return room_type((map_data, set()))
 
 if __name__ == "__main__":
+    print "'l' to test loading a room\n's' to test saving a room"
     do = raw_input(">")
     if do == "s":
         md = MapDS()

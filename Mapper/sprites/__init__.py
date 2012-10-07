@@ -11,6 +11,7 @@ class Sprite(pygame.sprite.DirtySprite):
         self.animations = animations
         self.layer = 1
         self.hitbox = None
+        self._room = None  # unaffiliated
 
         self.x, self.y = (x, y)
         super(Sprite, self).__init__()
@@ -24,6 +25,15 @@ class Sprite(pygame.sprite.DirtySprite):
         if y is not None:
             self.y = y
 
+    def set_room(self, room):
+        if self._room is not None:
+            self._room.discard_entity(self)
+        if room is not None:
+            room.add_entity(self)
+        else:
+            self._room = None
+
+    room = property(lambda self: self._room, set_room)
     room_pos = property(lambda self: (self.x // (Room.TPS * 50), self.y // (Room.TPS * 50)))
     width = property(lambda self: self.size[0])
     height = property(lambda self: self.size[1])
