@@ -93,31 +93,29 @@ class CircleHB(HB):
 
                 pushx = (distx * mult) / hypot
                 pushy = (disty * mult) / hypot
-                pushx *= self.mass / totmass  # normalize the distance to the corner
-                pushy *= self.mass / totmass  # and push back by your motion vector
-                xoff += pushx
-                yoff += pushy
+                masspush = self.mass / totmass  # normalize and push
+                xoff += pushx * (1 - masspush)
+                yoff += pushy * (1 - masspush)
 
-                other.linked.x -= pushx
-                other.linked.y -= pushy
+                other.linked.x -= pushx * masspush
+                other.linked.y -= pushy * masspush
             self.linked.x += xoff
             self.linked.y += yoff
 
         elif isinstance(other, CircleHB):
             totmass = float(self.mass + other.mass)
-            distx = other.x - self.x
-            disty = other.y - self.y
+            distx = self.x - other.x
+            disty = self.y - other.y
             hypot = math.hypot(distx, disty)  # distance
             mult = math.hypot(xoff, yoff)  # get how fast you're going (might have changed)
             pushx = (distx * mult) / hypot
             pushy = (disty * mult) / hypot
-            pushx *= self.mass / totmass  # normalize the distance to the corner
-            pushy *= self.mass / totmass  # and push back by your motion vector
-            xoff += pushx
-            yoff += pushy
+            masspush = self.mass / totmass  # normalize and push
+            xoff += pushx * (1 - masspush)
+            yoff += pushy * (1 - masspush)
 
-            other.linked.x -= pushx
-            other.linked.y -= pushy
+            other.linked.x -= pushx * masspush
+            other.linked.y -= pushy * masspush
             self.linked.x += xoff
             self.linked.y += yoff
             
