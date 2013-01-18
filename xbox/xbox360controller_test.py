@@ -1,5 +1,5 @@
 import pygame
- 
+
 pygame.init()
 
 if pygame.joystick.get_count():
@@ -103,6 +103,73 @@ class XBoxStick(XBoxComponent):
         self.redraw()
 
 
+class XBoxDPad(XBoxComponent):
+    D = 100
+    W = 30
+    def __init__(self, parent, (x, y)):
+        d = self.D
+        w = self.W
+        super(XBoxDPad, self).__init__(parent, x - d / 2, y - d / 2, d, d)
+        TRANSPARENT = (0xFF, 0, 0xFF)
+        COLOR = (0xCC, ) * 3
+        self.set_colorkey(TRANSPARENT)
+        self.fill(TRANSPARENT)
+        self.fill(COLOR, ((d - w) / 2, 0, w, d))
+        self.fill(COLOR, (0, (d - w) / 2, d, w))
+
+        for which in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            self.draw_arrow(0, which)
+        self.pressed = (0, 0)
+
+    def press(self, (x, y)):
+        if x != self.pressed[0]:
+            if x:
+                self.draw_arrow(1, (x, 0))
+            if self.pressed[0]:
+                self.draw_arrow(0, (self.pressed[0], 0))
+        if y != self.pressed[1]:
+            if y:
+                self.draw_arrow(1, (0, y))
+            if self.pressed[1]:
+                self.draw_arrow(0, (0, self.pressed[1]))
+        self.pressed = (x, y)
+        self.dirty()
+
+    def draw_arrow(self, pressed, which):
+        off = 5
+        center = self.D / 2
+        arrow = self.W / 2 - off
+        color = (0xFF, 0, 0) if pressed else (0x77, ) * 3
+        UP_ARROW = [(center - arrow, off + arrow),
+                    (center + arrow, off  + arrow),
+                    (center, off)]
+        if which == (0, 1):  # up
+            pygame.draw.polygon(self, color, UP_ARROW)
+        elif which == (0, -1):
+            pygame.draw.polygon(self, color,
+                map(lambda (x, y): (x, self.D - y), UP_ARROW))
+        elif which == (1, 0):  # right
+            pygame.draw.polygon(self, color,
+                map(lambda (x, y): (self.D - y, x), UP_ARROW))
+        elif which == (-1, 0):
+            pygame.draw.polygon(self, color,
+                map(lambda (x, y): (y, x), UP_ARROW))
+
+
+class XBoxTrigger(XBoxComponent):
+    W = 66
+    H = 30
+    def __init__(self, parent, (x, y)):
+        super(XBoxTrigger, self).__init__(parent, x, y, self.W, self.H)
+        self.set(0)
+
+    def set(self, x):
+        self.pressed = x
+        self.fill((0x22, ) * 3)
+        self.fill((0xCC, ) * 3, (0, x * (self.H - 1), self.W, self.H))
+        self.dirty()
+
+
 class XBoxController(pygame.Surface):
     def __init__(self):
         super(XBoxController, self).__init__((800, 600))
@@ -117,10 +184,16 @@ class XBoxController(pygame.Surface):
         self.start = XBoxButton(self, (470, 200), (0xBB, ) * 3, 10)
         self.LS = XBoxStick(self, (200, 200))
         self.RS = XBoxStick(self, (500, 350))
+        self.DPAD = XBoxDPad(self, (300, 350))
+        self.LT = XBoxTrigger(self, (150, 25))
+        self.RT = XBoxTrigger(self, (584, 25))
 
         self.button_list = [self.A, self.B, self.X, self.Y, self.LB, self.RB,
             self.select, self.start, self.LS, self.RS]
 
+        self.draw_logo()
+
+    def draw_logo(self):
         pygame.draw.circle(self, (0x99, ) * 3, (400, 200), 30)
         pygame.draw.line(self, (0, 0xBB, 0), (370, 170), (430, 230), 3)
         pygame.draw.line(self, (0, 0xBB, 0), (370, 230), (430, 170), 3)
@@ -163,13 +236,17 @@ class Main(object):
                         self.controller.RS.set(x=event.value)
                 elif event.type == pygame.JOYHATMOTION:
                     # event.value = (amt right, amt up)
-                    # print event.type
-                    # print event
-                    pass
+                    self.controller.DPAD.press(event.value)
                 elif event.type == pygame.JOYBUTTONUP:
                     self.controller.button_list[event.button].up()
                 elif event.type == pygame.JOYBUTTONDOWN:
                     self.controller.button_list[event.button].down()
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_F4 and pygame.key.get_mods() & pygame.KMOD_ALT:
+                        self.done = True
+                elif event.type == pygame.KEYUP:
+                    pass
                 else:
                     print event.type
                     print event
